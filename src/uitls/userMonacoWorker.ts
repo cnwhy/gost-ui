@@ -5,14 +5,14 @@ import jsonWorker from "monaco-editor/esm/vs/language/json/json.worker?worker";
 // import cssWorker from "monaco-editor/esm/vs/language/css/css.worker?worker";
 // import htmlWorker from "monaco-editor/esm/vs/language/html/html.worker?worker";
 // import tsWorker from "monaco-editor/esm/vs/language/typescript/ts.worker?worker";
-// @ts-ignore 
+// @ts-ignore
 // import { language as yamlLanguage } from "monaco-editor/esm/vs/basic-languages/yaml/yaml";
 
 // eslint-disable-next-line
 // @ts-ignore
 self.MonacoEnvironment = {
   getWorker(_: any, label: string) {
-	console.log('[label]',label);
+    console.log("[label]", label);
     // setLocaleData(zh_CN.contents);
     if (label === "json") {
       return new jsonWorker();
@@ -30,8 +30,7 @@ self.MonacoEnvironment = {
   },
 };
 monaco.languages.json.jsonDefaults.setDiagnosticsOptions({
-	allowComments: true,
-	trailingCommas: 'warning',
-})
+  allowComments: true,
+  trailingCommas: "warning",
+});
 monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
-

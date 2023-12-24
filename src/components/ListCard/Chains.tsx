@@ -1,7 +1,7 @@
 import { chains } from "../../api";
 import { ChainConfig } from "../../api/types";
 import ListCard from ".";
-import viewChain from "../viewer/chain";
+import viewChain, {ViewChain} from "../viewer/chain";
 import { useContext } from "react";
 import Ctx from "../../uitls/ctx";
 
@@ -26,7 +26,8 @@ const ChainCard: React.FC = (props) => {
   const _prop = {
     module: 'chain',
     renderConfig: (value: any, record: ChainConfig, index: number) => {
-      return viewChain.call(gostConfig!, record);
+      // return viewChain.call(gostConfig!, record);
+      return <ViewChain {...record} />;
     },
   };
   return <ListCard {..._prop} />;

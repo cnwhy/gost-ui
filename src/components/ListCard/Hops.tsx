@@ -4,7 +4,7 @@ import ListCard from ".";
 import viewChain from "../viewer/chain";
 import { useContext } from "react";
 import Ctx from "../../uitls/ctx";
-import viewHop from "../viewer/hop";
+import {ViewHop} from "../viewer/hop";
 
 const HopsCard: React.FC = (props) => {
   const { gostConfig } = useContext(Ctx);
@@ -12,7 +12,8 @@ const HopsCard: React.FC = (props) => {
     <ListCard
       module="hop"
       renderConfig={(value: any, record: HopConfig, index: number) => {
-        return viewHop.call(gostConfig!, record);
+        // return viewHop.call(gostConfig!, record);
+        return <ViewHop {...record} />;
       }}
     ></ListCard>
   );
