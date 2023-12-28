@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { Config, HopConfig } from "../../api/types";
-import viewNode, { ViewNode } from "./node";
+import { viewNode, ViewNode } from "./node";
 import Ctx from "../../uitls/ctx";
 import { Space, Tag, Tooltip } from "antd";
 
@@ -30,28 +30,10 @@ export const ViewHop = (props: HopConfig) => {
   // const _nodes = nodes.map(viewNode.bind(this));
   // return _nodes.join(",");
   return (
-    <>
+    <Space size={5}>
       {nodes.map((node) => (
         <ViewNode {...node} />
       ))}
-    </>
-  );
-};
-
-export function ViewHops(props: { hops: HopConfig[] }) {
-  console.log(props);
-  return (
-    <Space>
-      {props.hops.map((hop) => {
-        const tootip = <ViewHop {...hop} />;
-        return (
-          <Tooltip title={tootip}>
-            <Tag bordered={false} color="blue">
-              {hop.name}
-            </Tag>
-          </Tooltip>
-        );
-      })}
     </Space>
   );
-}
+};

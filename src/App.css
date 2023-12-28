@@ -4,3 +4,7 @@
 .g-boder {
   border: 1px solid #ccc;
 }
+
+.ant-space-item > .ant-tag {
+  margin-inline-end: inherit;
+}
