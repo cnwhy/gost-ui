@@ -1,4 +1,9 @@
-import React, { useContext, useEffect } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from "react";
 import { Button, Popconfirm, Space, Table } from "antd";
 import { red, green } from "@ant-design/colors";
 import { getRESTfulApi } from "../../api";
@@ -23,14 +28,10 @@ export type PublicListProps = {
   localApi?: GostCommit;
   keyName: string;
   rowKey?: string;
-  renderConfig?: (
-    v: any,
-    r: any,
-    i: number
-  ) => React.ReactNode;
+  renderConfig?: (v: any, r: any, i: number) => React.ReactNode;
 };
 
-export const UpdateCtx = React.createContext<{ update?: (v: any) => any }>({});
+export const UpdateCtx = React.createContext<{ update?: (v?: any) => any }>({});
 
 const defaultRenderConfig = (value: any, record: any, index: number) => {
   return JSON.stringify(record);
@@ -47,10 +48,8 @@ const PublicList: React.FC<PublicListProps> = (props) => {
     renderConfig = defaultRenderConfig,
   } = props;
   const { localList, comm } = useContext(CardCtx);
-  // const { dataList, dataSource } = UseListData({ localList, name: keyName });
   const { dataList, dataSource } = UseListData1({ localApi, name: keyName });
   const templates = UseTemplates({ name: keyName });
-
   const {
     deleteValue,
     updateValue,
@@ -61,7 +60,56 @@ const PublicList: React.FC<PublicListProps> = (props) => {
     addValue,
     // } = comm.current;
   } = comm!;
+  const ref = useRef<any>({ dataList, dataSource });
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        dataList,
+        dataSource,
+      };
+    },
+    [dataList, dataSource]
+  );
 
+  useEffect(() => {
+    function onEdit({ path, record }: { path: string; record: any }) {
+      const { dataList, dataSource } = ref.current;
+      const isEnable = dataList.includes(record);
+      const key = record.name;
+      const attrs = path.split(",");
+      const v = attrs.reduce((a, b) => {
+        return a?.[b];
+      }, record);
+      const onup = (value: any) => {
+        let _record = record;
+        attrs.forEach((attr, i) => {
+          if (i === attrs.length - 1) {
+            _record[attr] = value;
+          } else {
+            _record = _record[attr];
+          }
+        });
+      };
+      showJsonForm({
+        title: "修改",
+        initialValues: { value: jsonFormatValue(v) },
+        onFinish: async (values: any) => {
+          onup(jsonParse(values.value));
+          if (isEnable) {
+            await updateValue(key, record);
+          } else {
+            await updateLocal(key, record);
+          }
+          return true;
+        },
+      });
+    }
+    configEvent.on(`edit:${name}`, onEdit);
+    return () => {
+      configEvent.off(`edit:${name}`, onEdit);
+    };
+  }, []);
   return (
     <div style={{ height: 348, overflow: "auto" }}>
       <Table
@@ -77,8 +125,8 @@ const PublicList: React.FC<PublicListProps> = (props) => {
             render: (value, record, index) => {
               const isEnable = dataList.includes(record);
               const update = isEnable
-                ? updateValue.bind(null, record.name)
-                : updateLocal.bind(null, record.name);
+                ? (value?: any) => updateValue(record.name, value || record)
+                : (value?: any) => updateLocal(record.name, value || record);
               let render: React.ReactNode;
               try {
                 render = renderConfig(value, record, index);
@@ -148,14 +196,13 @@ const PublicList: React.FC<PublicListProps> = (props) => {
                           const json = jsonParse(value);
                           if (isEnable) {
                             await updateValue(record.name, json);
-                            return true;
                           } else {
                             await updateLocal(record.name, {
                               ...record,
                               ...json,
                             });
-                            return true;
                           }
+                          return true;
                         },
                       });
                     }}

@@ -4,7 +4,8 @@ import { useContext, useMemo } from "react";
 import Ctx, { CardCtx } from "../../uitls/ctx";
 import { Space, Tag, Tooltip } from "antd";
 import { showJsonForm } from "../Forms/Json";
-import { jsonFormatValue } from "../../uitls";
+import { jsonFormatValue, jsonParse } from "../../uitls";
+import { UpdateCtx } from "../List/Public";
 
 export function viewNode(this: Partial<Config>, data: NodeConfig) {
   const {
@@ -30,34 +31,49 @@ const NodeFormat = (props: NodeConfig) => {
   const _metadata = metadata ? qs.stringify(metadata) : "";
   return (
     <Space>
-      <Tag color="#87d068">{`${connectorType}${dialerType ? "+" + dialerType : ""}`}</Tag>
+      <Tag color="#87d068">{`${connectorType}${
+        dialerType ? "+" + dialerType : ""
+      }`}</Tag>
       <Tag color="green">{addr}</Tag>
-      {_metadata && <Tag color="purple" title="_metadata">metadata</Tag>}
+      {_metadata && (
+        <Tag color="purple" title="_metadata">
+          metadata
+        </Tag>
+      )}
     </Space>
   );
 };
 
-export const ViewNode = (props: NodeConfig) => {
-  const { name } = props;
-  const { gostConfig, } = useContext(Ctx);
-  const { comm } = useContext(CardCtx);
-  const title = useMemo(
-    () => viewNode.call(gostConfig!, props),
-    [props, gostConfig]
-  );
-  const {
-    deleteValue,
-    updateValue,
-    dispatch,
-    enable,
-    updateLocal,
-    deleteLocal,
-    addValue,
-    // } = comm.current;
-  } = comm!;
+export const ViewNode = ({
+  node,
+  upjson,
+  isLink = false,
+}: {
+  node: NodeConfig;
+  isLink?: boolean;
+  upjson?: (newNode: NodeConfig) => void;
+}) => {
+  const { name } = node;
+  const { update } = useContext(UpdateCtx);
   return (
-    <Tooltip color="#ddffbf" title={<NodeFormat {...props} />}>
-      <Tag bordered={false} color="green">
+    <Tooltip color="#ddffbf" title={<NodeFormat {...node} />}>
+      <Tag
+        bordered={false}
+        color="green"
+        style={{ cursor: "default" }}
+        onDoubleClick={() => {
+          if(!upjson) return;
+          showJsonForm({
+            title: "修改",
+            initialValues: { value: jsonFormatValue(node) },
+            onFinish: async (values: any) => {
+              upjson(jsonParse(values.value));
+              update!();
+              return true;
+            },
+          });
+        }}
+      >
         {name}
       </Tag>
     </Tooltip>

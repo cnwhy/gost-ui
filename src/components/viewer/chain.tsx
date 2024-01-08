@@ -22,16 +22,16 @@ export function ViewHops(props: { hops: HopConfig[]; root: any }) {
           return (
             <Tooltip title={tootip} color="#c7e7ff" arrow={false}>
               <Tag
-                style={{ cursor: "default" }}
                 bordered={false}
                 color="blue"
+                style={{ cursor: "default" }}
                 onDoubleClick={() => {
                   showJsonForm({
                     title: "修改",
                     initialValues: { value: jsonFormatValue(hop) },
                     onFinish: async (values: any) => {
                       props.hops[i] = jsonParse(values.value);
-                      update!(props.root)
+                      update!()
                       return true;
                     },
                   });
