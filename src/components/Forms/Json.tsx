@@ -1,17 +1,17 @@
 import React, { useRef } from "react";
-import { ModalForm, ProFormInstance } from "@ant-design/pro-components";
+import ReactDOM from "react-dom/client";
+import {
+  ModalForm,
+  ProFormInstance,
+  ModalFormProps,
+} from "@ant-design/pro-components";
 import { Button, Dropdown, Form, Space } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import { jsonFormat, jsonStringFormat, jsonParse } from "../../uitls";
 import MonacoEditor, { MonacoEditorProps } from "react-monaco-editor";
 import "../../uitls/userMonacoWorker";
-
-type Template = {
-  label: string;
-  cli?: string;
-  json?: string;
-  children?: Template[];
-};
+import { Template } from "../../templates";
+import { render } from "react-dom";
 
 const template2menu: any = (template: Template) => {
   const { children, ...other } = template;
@@ -45,7 +45,11 @@ const template2menu: any = (template: Template) => {
 //   return <Space></Space>;
 // };
 
-const JsonForm: React.FC<any> = (props) => {
+type JsonFromProps = ModalFormProps & {
+  templates?: Template[];
+};
+
+const JsonForm: React.FC<JsonFromProps> = (props) => {
   const { templates, ...other } = props;
   const formRef = useRef<ProFormInstance>();
   const templateHandle = (json: string) => {
@@ -61,6 +65,7 @@ const JsonForm: React.FC<any> = (props) => {
     formRef.current?.setFieldValue("value", value);
     formRef.current?.validateFields();
   };
+
   const template2menu: any = (template: Template) => {
     const { children, ...other } = template;
     const { json, cli } = template;
@@ -77,7 +82,9 @@ const JsonForm: React.FC<any> = (props) => {
       };
     }
   };
+
   const hasTemplate = templates?.length;
+
   return (
     <>
       <ModalForm
@@ -90,10 +97,10 @@ const JsonForm: React.FC<any> = (props) => {
         {hasTemplate ? (
           <Space size={"small"} style={{ marginBottom: 5 }}>
             <span>模板:</span>
-            {templates.map((template: any, index: any) => {
+            {templates.map((template, index) => {
               if (template.children?.length) {
                 const menu = {
-                  items: template.children.map(template2menu),
+                  items: template.children.map(template2menu) as any,
                   // onClick: (info: any) => {
                   //   // debugger;
                   //   const {item} = info;
@@ -192,6 +199,35 @@ const JsonForm: React.FC<any> = (props) => {
       </ModalForm>
     </>
   );
+};
+
+
+export const showJsonForm = (props: JsonFromProps) => {
+  const { onOpenChange, open: propOpen, ...other } = props;
+  let timeoutId: ReturnType<typeof setTimeout>;
+  const container = document.createDocumentFragment();
+  const root = ReactDOM.createRoot(container);
+  function render({ ...props }: JsonFromProps) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      document.body.append(container);
+      root.render(<JsonForm {...props} />);
+    }, 100);
+  }
+
+  function destroy() {
+    console.log("destroy");
+    root.unmount();
+    document.body.removeChild(container);
+  }
+
+  render({
+    ...other,
+    open: true,
+    onOpenChange: (v) => {
+      !v && destroy();
+    },
+  });
 };
 
 export default JsonForm;

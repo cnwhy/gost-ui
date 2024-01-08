@@ -1,5 +1,6 @@
 import * as JSONC from "jsonc-parser";
 import { getByName } from "./default";
+import { Template } from "./type";
 
 const getProxyJson = (
   handlerType: string,
@@ -182,4 +183,4 @@ export default [
         }
       }`,
   },
-];
+] as Template[];

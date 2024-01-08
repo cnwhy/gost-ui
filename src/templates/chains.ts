@@ -1,4 +1,5 @@
 import { getByName } from "./default";
+import { Template } from "./type";
 
 const def = getByName("chains");
 export default [
@@ -36,4 +37,4 @@ export default [
 }
       `,
   },
-];
+] as Template[];

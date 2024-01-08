@@ -1,8 +1,10 @@
 import qs from "qs";
 import { Config, NodeConfig } from "../../api/types";
 import { useContext, useMemo } from "react";
-import Ctx from "../../uitls/ctx";
+import Ctx, { CardCtx } from "../../uitls/ctx";
 import { Space, Tag, Tooltip } from "antd";
+import { showJsonForm } from "../Forms/Json";
+import { jsonFormatValue } from "../../uitls";
 
 export function viewNode(this: Partial<Config>, data: NodeConfig) {
   const {
@@ -37,11 +39,22 @@ const NodeFormat = (props: NodeConfig) => {
 
 export const ViewNode = (props: NodeConfig) => {
   const { name } = props;
-  const { gostConfig } = useContext(Ctx);
+  const { gostConfig, } = useContext(Ctx);
+  const { comm } = useContext(CardCtx);
   const title = useMemo(
     () => viewNode.call(gostConfig!, props),
     [props, gostConfig]
   );
+  const {
+    deleteValue,
+    updateValue,
+    dispatch,
+    enable,
+    updateLocal,
+    deleteLocal,
+    addValue,
+    // } = comm.current;
+  } = comm!;
   return (
     <Tooltip color="#ddffbf" title={<NodeFormat {...props} />}>
       <Tag bordered={false} color="green">

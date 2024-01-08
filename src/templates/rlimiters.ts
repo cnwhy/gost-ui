@@ -1,5 +1,6 @@
 import { getByName } from "./default";
 import { getOtherAll } from "./otherOrigin";
+import { Template } from "./type";
 
 const def = getByName("rlimiter");
 export default [
@@ -22,4 +23,4 @@ export default [
   ...getOtherAll("rlimiter", "https://gost.run/concepts/limiter/", {
     redisType: "set",
   }),
-];
+] as Template[];

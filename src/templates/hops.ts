@@ -1,5 +1,6 @@
 import { getByName } from "./default";
 import { getOtherAll } from "./otherOrigin";
+import { Template } from "./type";
 
 const def = getByName("hops");
 export default [
@@ -36,4 +37,4 @@ export default [
     }`,
   },
   ...getOtherAll("hop", "https://gost.run/concepts/hop"),
-];
+] as Template[];

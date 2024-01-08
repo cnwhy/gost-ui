@@ -1,5 +1,6 @@
 import { getByName } from "./default";
 import { getOtherAll } from "./otherOrigin";
+import { Template } from "./type";
 
 const def = getByName("hosts");
 export default [
@@ -24,4 +25,4 @@ export default [
       }`,
   },
   ...getOtherAll("hosts", "https://gost.run/concepts/hosts/"),
-];
+] as Template[];

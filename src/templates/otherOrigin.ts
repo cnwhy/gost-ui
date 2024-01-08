@@ -1,3 +1,5 @@
+import { Template } from "./type";
+
 export const getFileTemplate = (name: string) => {
   return `{
     "name": "${name}-0",
@@ -49,5 +51,5 @@ export const getOtherAll = (
       label: "HTTP",
       json: doc + getHttpTemplate(name),
     },
-  ];
+  ] as Template[];
 };

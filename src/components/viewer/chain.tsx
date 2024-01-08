@@ -2,22 +2,41 @@ import { Space, Tag, Tooltip } from "antd";
 import { ChainConfig, Config, HopConfig } from "../../api/types";
 import { ViewHop, viewHops } from "./hop";
 import { RightOutlined } from "@ant-design/icons";
+import { showJsonForm } from "../Forms/Json";
+import { jsonFormatValue, jsonParse } from "../../uitls";
+import { useContext } from "react";
+import { UpdateCtx } from "../List/Public";
 
 export default function viewChain(this: Partial<Config>, chain: ChainConfig) {
   const { hops } = chain;
   return viewHops.call(this, hops);
 }
 
-export function ViewHops(props: { hops: HopConfig[] }) {
-  console.log(props);
+export function ViewHops(props: { hops: HopConfig[]; root: any }) {
+  const { update } = useContext(UpdateCtx);
   return (
     <Space size={5}>
       {props.hops
-        .map((hop) => {
+        .map((hop, i) => {
           const tootip = <ViewHop {...hop} />;
           return (
             <Tooltip title={tootip} color="#c7e7ff" arrow={false}>
-              <Tag bordered={false} color="blue">
+              <Tag
+                style={{ cursor: "default" }}
+                bordered={false}
+                color="blue"
+                onDoubleClick={() => {
+                  showJsonForm({
+                    title: "修改",
+                    initialValues: { value: jsonFormatValue(hop) },
+                    onFinish: async (values: any) => {
+                      props.hops[i] = jsonParse(values.value);
+                      update!(props.root)
+                      return true;
+                    },
+                  });
+                }}
+              >
                 {hop.name}
               </Tag>
             </Tooltip>
@@ -36,5 +55,5 @@ export function ViewHops(props: { hops: HopConfig[] }) {
 export function ViewChain(this: Partial<Config>, chain: ChainConfig) {
   const { hops } = chain;
   // return viewHops.call(this, hops);
-  return <ViewHops hops={hops} />;
+  return <ViewHops hops={hops} root={chain} />;
 }

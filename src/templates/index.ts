@@ -12,6 +12,9 @@ import climiters from "./climiters";
 import limiters from "./limiters";
 import rlimiters from "./rlimiters";
 import resolvers from "./resolvers";
+import { Template } from "./type";
+
+export type { Template };
 
 const proxyTypes = "http,http2,socks,socks5,ss,ssu,sni,relay";
 const listenerTypes =
@@ -32,7 +35,7 @@ export default {
   routers: routers,
 
   services: services,
-} as Record<string, any>;
+} as Record<string, Template[]>;
 /*
 
 {

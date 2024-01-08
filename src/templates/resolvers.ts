@@ -1,4 +1,5 @@
 import { getByName } from "./default";
+import { Template } from "./type";
 
 const def = getByName("resolvers");
 export default [
@@ -50,4 +51,4 @@ export default [
 //         ]
 //       }`,
 //   },
-];
+] as Template[];

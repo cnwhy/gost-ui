@@ -26,7 +26,7 @@ export const ViewHop = (props: HopConfig) => {
     _hop = gostConfig!.hops?.find((item) => item.name === _hop.name) || _hop;
   }
   const { nodes } = _hop;
-  if (nodes?.length <= 0) return `[${props.name}(noNodes)]`;
+  if (!nodes || nodes?.length <= 0) return `[${props.name}(noNodes)]`;
   // const _nodes = nodes.map(viewNode.bind(this));
   // return _nodes.join(",");
   return (

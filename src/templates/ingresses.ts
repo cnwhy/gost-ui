@@ -1,5 +1,6 @@
 import { getByName } from "./default";
 import { getOtherAll } from "./otherOrigin";
+import { Template } from "./type";
 
 const def = getByName("ingresses");
 export default [
@@ -24,4 +25,4 @@ export default [
   ...getOtherAll("ingress", "https://gost.run/concepts/ingress/", {
     redisType: "hash",
   }),
-];
+] as Template[];

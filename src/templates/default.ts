@@ -1,4 +1,5 @@
 import { findNodeAtLocation, parseTree } from "jsonc-parser";
+import { Template } from "./type";
 // 源自 https://gost.run/reference/configuration/file/
 const defaultTemplates = `{
     "services": [
@@ -260,7 +261,7 @@ export const getByName = (name: string, label = "默认") => {
     return {
       label,
       json: defT,
-    };
+    } as Template;
   }
 };
 

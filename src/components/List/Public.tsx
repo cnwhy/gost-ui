@@ -1,8 +1,8 @@
-import { useContext, useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Button, Popconfirm, Space, Table } from "antd";
 import { red, green } from "@ant-design/colors";
 import { getRESTfulApi } from "../../api";
-import JsonForm from "../Forms/Json";
+import JsonForm, { showJsonForm } from "../Forms/Json";
 import { jsonFormatValue, jsonParse } from "../../uitls";
 import {
   CheckCircleOutlined,
@@ -16,21 +16,27 @@ import { CardCtx } from "../../uitls/ctx";
 import { UseListData, UseListData1, UseTemplates } from "../ListCard/hooks";
 import { configEvent } from "../../uitls/events";
 
-type Props = {
+export type PublicListProps = {
   name: string;
   title: string;
   api: ReturnType<typeof getRESTfulApi>;
   localApi?: GostCommit;
   keyName: string;
   rowKey?: string;
-  renderConfig?: (v: any, r: any, i: number) => React.ReactNode;
+  renderConfig?: (
+    v: any,
+    r: any,
+    i: number
+  ) => React.ReactNode;
 };
+
+export const UpdateCtx = React.createContext<{ update?: (v: any) => any }>({});
 
 const defaultRenderConfig = (value: any, record: any, index: number) => {
   return JSON.stringify(record);
 };
 
-const PublicList: React.FC<Props> = (props) => {
+const PublicList: React.FC<PublicListProps> = (props) => {
   const {
     name,
     title,
@@ -45,6 +51,17 @@ const PublicList: React.FC<Props> = (props) => {
   const { dataList, dataSource } = UseListData1({ localApi, name: keyName });
   const templates = UseTemplates({ name: keyName });
 
+  const {
+    deleteValue,
+    updateValue,
+    dispatch,
+    enable,
+    updateLocal,
+    deleteLocal,
+    addValue,
+    // } = comm.current;
+  } = comm!;
+
   return (
     <div style={{ height: 348, overflow: "auto" }}>
       <Table
@@ -57,12 +74,22 @@ const PublicList: React.FC<Props> = (props) => {
           {
             title: "详情",
             ellipsis: true,
-            render: (...args) => {
+            render: (value, record, index) => {
+              const isEnable = dataList.includes(record);
+              const update = isEnable
+                ? updateValue.bind(null, record.name)
+                : updateLocal.bind(null, record.name);
+              let render: React.ReactNode;
               try {
-                return renderConfig(...args);
+                render = renderConfig(value, record, index);
               } catch (e) {
-                return defaultRenderConfig(...args);
+                render = defaultRenderConfig(value, record, index);
               }
+              return (
+                <UpdateCtx.Provider value={{ update }}>
+                  {render}
+                </UpdateCtx.Provider>
+              );
             },
           },
           {
@@ -72,16 +99,6 @@ const PublicList: React.FC<Props> = (props) => {
             dataIndex: rowKey,
             render: (value, record, index) => {
               // console.log("render", record);
-              const {
-                deleteValue,
-                updateValue,
-                dispatch,
-                enable,
-                updateLocal,
-                deleteLocal,
-                addValue,
-                // } = comm.current;
-              } = comm!;
               const isEnable = dataList.includes(record);
               return (
                 <Space size={2}>
@@ -116,49 +133,52 @@ const PublicList: React.FC<Props> = (props) => {
                       </Button>
                     )
                   ) : null}
-                  <JsonForm
-                    title={`修改 ${value || ""}`}
-                    templates={templates}
-                    trigger={
-                      <Button
-                        title="修改"
-                        icon={<EditOutlined />}
-                        type="link"
-                        size={"small"}
-                      />
-                    }
-                    initialValues={{ value: jsonFormatValue(record) }}
-                    onFinish={async (values: any) => {
-                      const { value } = values;
-                      const json = jsonParse(value)
-                      if (isEnable) {
-                        await updateValue(record.name, json);
-                        return true;
-                      } else {
-                        await updateLocal(record.name, { ...record, ...json });
-                        return true;
-                      }
+                  <Button
+                    title="修改"
+                    icon={<EditOutlined />}
+                    type="link"
+                    size={"small"}
+                    onClick={() => {
+                      showJsonForm({
+                        title: `修改 ${value || ""}`,
+                        templates: templates,
+                        initialValues: { value: jsonFormatValue(record) },
+                        onFinish: async (values: any) => {
+                          const { value } = values;
+                          const json = jsonParse(value);
+                          if (isEnable) {
+                            await updateValue(record.name, json);
+                            return true;
+                          } else {
+                            await updateLocal(record.name, {
+                              ...record,
+                              ...json,
+                            });
+                            return true;
+                          }
+                        },
+                      });
                     }}
-                  ></JsonForm>
-                  <JsonForm
-                    title={`复制自 ${value || ""}`}
-                    templates={templates}
-                    trigger={
-                      <Button
-                        title="复制"
-                        icon={<CopyOutlined />}
-                        type="link"
-                        size={"small"}
-                      />
-                    }
-                    initialValues={{ value: jsonFormatValue(record) }}
-                    onFinish={async (values: any) => {
-                      const { value } = values;
-                      const json = jsonParse(value);
-                      await comm!.addValue(json);
-                      return true;
+                  />
+                  <Button
+                    title="复制"
+                    icon={<CopyOutlined />}
+                    type="link"
+                    size={"small"}
+                    onClick={() => {
+                      showJsonForm({
+                        title: `复制自 ${value || ""}`,
+                        templates: templates,
+                        initialValues: { value: jsonFormatValue(record) },
+                        onFinish: async (values: any) => {
+                          const { value } = values;
+                          const json = jsonParse(value);
+                          await comm!.addValue(json);
+                          return true;
+                        },
+                      });
                     }}
-                  ></JsonForm>
+                  />
                   <Popconfirm
                     title="警告"
                     description="确定要删除吗？"

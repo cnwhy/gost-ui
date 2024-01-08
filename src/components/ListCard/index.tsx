@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { getRESTfulApi } from "../../api";
 import { ProCard } from "@ant-design/pro-components";
-import PublicList from "../List/Public";
+import PublicList, { PublicListProps } from "../List/Public";
 import AddButton from "../Forms/AddButton";
 import { GostCommit } from "../../api/local";
 import { CardCtx, Comm } from "../../uitls/ctx";
@@ -21,7 +21,7 @@ export type ListCardProps = {
   localApi?: GostCommit;
   boxShadow?: boolean;
   bordered?: boolean;
-  renderConfig?: (v: any, r: any, i: number) => React.ReactNode;
+  renderConfig?: PublicListProps["renderConfig"];
 };
 
 const ListCard: React.FC<ListCardProps> = (props) => {
